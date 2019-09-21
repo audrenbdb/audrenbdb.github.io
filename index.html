@@ -503,7 +503,7 @@
                 display.textContent = minutes + ":" + seconds;
 
                 if (--timer < 0) {
-                    if (confirm("Kont en holl : " + score + ". Adkrogiñ ?")) {
+                    if (confirm("Kont en holl : " + score + ". Adkrogiñ ? Recommencer ?")) {
                         timer = duration;
                         score = 0;
                     } else {
@@ -519,7 +519,7 @@
             success.classList.replace("hidden", "shown");
             let el = document.createElement("div");
             el.className = successItem ? "success-confirm" : "success-fail";
-            el.innerHTML = successItem ? "Mat e oa" : "Falz e oa";
+            el.innerHTML = successItem ? "Mat eo" : "C'hwitet eo";
             success.appendChild(el);
         }
 
