@@ -72,7 +72,7 @@ const mutations = {
     }
   },
   mixte: {
-    after: ['e', 'o (particule verbale)', 'ma (différent du possessif)'],
+    after: ['e (particule verbale)', 'o (particule verbale)', 'ma (différent du possessif)'],
     letters: {
       g: "c'h",
       gw: 'w',
