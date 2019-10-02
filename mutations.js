@@ -28,6 +28,12 @@ const timerDom = document.querySelector('.timer')
 const successDom = document.querySelector('.success')
 //end dom constants
 
+successDom.addEventListener("transitionend", () => {
+  if (successDom.classList.contains("shown")) {
+      successDom.classList.replace("shown", "hidden");
+  }
+})
+
 const mutations = {
   adoucissante: {
     after: [
@@ -85,7 +91,7 @@ const mutations = {
     }
   },
   spirante: {
-    after: ['ma', 'he (possessif)', 'o (possessif)', '3', '4', '9'],
+    after: ['ma (possessif)', 'he (possessif)', 'o (possessif)', '3', '4', '9'],
     letters: {
       k: "c'h",
       t: 'z',
@@ -114,7 +120,7 @@ function rollBoard() {
 }
 
 function earnPoint(bool) {
-  score += bool ? 1 : -2;
+  score += bool ? 1 : score - 2 <= 0 ? - score : - 2;
   scoreDom.innerHTML = score;
   displaySuccess(bool);
   rollBoard();
