@@ -1,5 +1,10 @@
 <html>
 
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
+</head>
+
 <body>
     <style>
         body {
@@ -8,7 +13,7 @@
 
         .board {
             display: flex;
-            max-width: 500px;
+            max-width: 600px;
             flex-direction: column;
             margin: auto;
             color: #667;
@@ -17,25 +22,19 @@
 
         .answers {
             display: flex;
-            justify-content: space-evenly;
             margin-bottom: 20px;
         }
 
         .item {
-            width: 100%;
             border: 1px solid #d0e9ff;
             text-align: center;
             padding: 20px;
             text-transform: capitalize;
+            flex: 1 1 0px;
+            width: 0;
         }
 
-        .item:first-of-type {
-            border-right: 0px;
-        }
 
-        .item:last-of-type {
-            border-left: 0px;
-        }
 
         .item:hover {
             background-color: #f9f9f9;
@@ -50,10 +49,7 @@
         }
 
         .displayed-word {
-            text-transform: capitalize;
             font-size: 18px;
-            font-style: bold;
-            font-weight: bold;
         }
 
         .translation {
@@ -73,7 +69,7 @@
             position: relative;
         }
 
-        .success {          
+        .success {
             transition: visibility 0.6s, opacity 0.6s linear;
             position: absolute;
             width: 100px;
@@ -96,443 +92,45 @@
             color: red;
         }
 
+        @media only screen and (max-width: 650px) {
+            .answers {
+                flex-direction: column;
+            }
 
+            .item {
+                width: auto;
+                border: 1px solid #d0e9ff;
+            }
+        }
 
+        @media only screen and (min-width: 651px) {
+
+            .item:first-of-type {
+                border-right: 0px;
+            }
+
+            .item:last-of-type {
+                border-left: 0px;
+            }
+
+        }
     </style>
     <div class="board">
         <div class="displayed">
             <div class="displayed-word"></div>
-            <div class="translation"></div>
         </div>
-        <div class="answers"></div>
-        <div class="score">Kont :&nbsp;<div class="result">0</div><div class="success hidden"></div>
+        <div class="answers">
+            <div class="item">Adoucissante</div>
+            <div class="item">Mixte</div>
+            <div class="item">Durcissante</div>
+            <div class="item">Spirante</div>
+        </div>
+        <div class="score">Kont :&nbsp;<div class="result">0</div>
+            <div class="success hidden"></div>
         </div>
         <div class="timer"></div>
     </div>
-
-    <script>
-        //prototypes
-        HTMLElement.prototype.empty = function () {
-            while (this.firstChild) {
-                this.removeChild(this.firstChild);
-            }
-        }
-
-        Array.prototype.shuffle = function () {
-            var input = this;
-
-            for (var i = input.length - 1; i >= 0; i--) {
-
-                var randomIndex = Math.floor(Math.random() * (i + 1));
-                var itemAtIndex = input[randomIndex];
-
-                input[randomIndex] = input[i];
-                input[i] = itemAtIndex;
-            }
-            return input;
-        }
-
-        const board = document.querySelector(".board");
-        const displayed = document.querySelector(".displayed-word");
-        const translation = document.querySelector(".translation");
-        const answers = document.querySelector(".answers");
-        const scoreDom = document.querySelector(".result");
-        const timerDom = document.querySelector(".timer");
-        const success = document.querySelector(".success");
-        let score = 0;
-
-        success.addEventListener("transitionend", () => {
-            if (success.classList.contains("shown")) {
-                success.classList.replace("shown", "hidden");
-            }
-        })
-
-        //List of words
-        const wordsList = [
-            {
-                word: "aval",
-                male: true,
-                plural: "avaloù",
-                pluralMale: true,
-                translation: "pomme",
-                person: false
-            },
-            {
-                word: "botez",
-                male: false,
-                plural: "botoù",
-                pluralMale: false,
-                translation: "chaussure, soulier, sabot"
-            },
-            {
-                word: "merc'h",
-                male: false,
-                plural: "merc'hed",
-                pluralMale: false,
-                translation: "fille"
-            },
-            {
-                word: "kazetenn",
-                male: false,
-                plural: "kazetennoù",
-                pluralMale: false,
-                translation: "journal"
-            },
-            {
-                word: "kaner",
-                male: true,
-                plural: "kanerien",
-                pluralMale: true,
-                translation: "chanteur",
-                person: true
-            },
-            {
-                word: "martolod",
-                male: true,
-                plural: "martoloded",
-                pluralMale: true,
-                translation: "matelot",
-                person: true
-            },
-            {
-                word: "paotr",
-                male: true,
-                plural: "paotred",
-                pluralMale: true,
-                translation: "garçon",
-                person: true
-            },
-            {
-                word: "fest",
-                male: false,
-                plural: "festoù",
-                pluralMale: false,
-                translation: "fête",
-            },
-            {
-                word: "levr",
-                male: true,
-                plural: "levrioù",
-                pluralMale: true,
-                translation: "livre"
-            },
-            {
-                word: "tad",
-                male: true,
-                plural: "tadoù",
-                pluralMale: true,
-                translation: "papa",
-                person: true
-            },
-            {
-                word: "mamm",
-                male: false,
-                plural: "mammoù",
-                pluralMale: false,
-                translation: "maman",
-                person: true
-            },
-            {
-                word: "bag",
-                male: false,
-                plural: "bagoù",
-                pluralMale: false,
-                translation: "bateau"
-            },
-            {
-                word: "loa",
-                male: false,
-                plural: "loaioù",
-                pluralMale: false,
-                translation: "cuillère",
-            },
-            {
-                word: "buoc'h",
-                male: false,
-                plural: "saout",
-                pluralMale: false,
-                translation: "vache"
-            },
-            {
-                word: "kafe",
-                male: true,
-                plural: "kaffeioù",
-                pluralMale: true,
-                translation: "café"
-            },
-            {
-                word: "laezh",
-                male: true,
-                plural: "laezhioù",
-                pluralMale: true,
-                translation: "lait"
-            },
-            {
-                word: "gwezenn",
-                male: false,
-                plural: "gwez",
-                pluralMale: true,
-                translation: "arbre"
-            },
-            {
-                word: "gwastell",
-                male: false,
-                plural: "gwastilli",
-                pluralMale: false,
-                translation: "gâteau"
-            },
-            {
-                word: "krampouezhenn",
-                male: false,
-                plural: "krampouezh",
-                pluralMale: true,
-                translation: "crêpe"
-            },
-            {
-                word: "saladenn",
-                male: false,
-                plural: "salad",
-                pluralMale: true,
-                translation: "salade"
-            },
-            {
-                word: "karotezhenn",
-                male: false,
-                plural: "karotezh",
-                pluralMale: false,
-                translation: "carotte"
-            },
-            {
-                word: "tomatezenn",
-                male: false,
-                plural: "tomatez",
-                pluralMale: true,
-                translation: "tomate"
-            },
-            {
-                word: "karotezhenn",
-                male: false,
-                plural: "karotezh",
-                pluralMale: true,
-                translation: "carotte"
-            },
-            {
-                word: "dizoloadenn",
-                male: false,
-                plural: "dizoloadennoù",
-                pluralMale: false,
-                translation: "découverte"
-            },
-            {
-                word: "kastell",
-                male: true,
-                plural: "kastelloù",
-                pluralMale: true,
-                translation: "château"
-            },
-            {
-                word: "glav",
-                male: false,
-                plural: "glavioù",
-                pluralMale: false,
-                translation: "pluie"
-            },
-            {
-                word: "gwaz",
-                male: true,
-                plural: "gwazed",
-                pluralMale: true,
-                translation: "jeune homme",
-                person: true,
-            }
-
-        ];
-
-        const articlesList = {
-            indefinite: ["un", "ur", "ul"],
-            definite: ["an", "ar", "al"]
-        }
-
-
-        const mutations = {
-            adoucissante: {
-                p: "b",
-                t: "d",
-                k: "g",
-                b: "v",
-                d: "z",
-                g: "c'h",
-                gw: "w",
-                m: "v"
-            },
-            spirante: {
-                p: "f",
-                t: "z",
-                k: "c'h"
-            },
-            mixte: {
-                b: "v",
-                d: "t",
-                g: "c'h",
-                gw: "w",
-                m: "v"
-            },
-            trapSoft: {
-                p: ["f", "v"],
-                t: ["z", "v"],
-                k: ["c'h", "gw", "g"],
-                b: ["f", "p"],
-                d: ["v", "t"],
-                g: ["k", "z"],
-                gw: ["c'h", "k"],
-                m: ["f", "c'h"]
-            }
-        }
-
-        startGame();
-
-        function startGame() {
-            let articleWord = "";
-            let tempList = [...wordsList];
-            let wordIndex = Math.floor(Math.random() * tempList.length);
-            let plural = Math.random() >= 0.5;
-            let articles = Math.random() >= 0.5 ? articlesList.indefinite : articlesList.definite;
-
-            if (plural) articles = articlesList.definite;
-
-            let singleWord = tempList[wordIndex];
-            let goodArticle = getArticle(singleWord.word, articles);
-            let mutedWord = getMutedWord(singleWord, plural);
-            let muted = plural ? mutedWord !== singleWord.plural : mutedWord !== singleWord.word;
-
-            const wordStartingLetters = singleWord.word.substr(0, 2).toLowerCase();
-
-            translation.innerHTML = `${plural ? singleWord.pluralMale ? "masculin" : "féminin" : singleWord.male ? "masculin" : "féminin"} ${plural ? 'pluriel, traduction du singulier "' : 'singulier, traduction de "'}${singleWord.translation}"`;
-
-            Math.random() >= 0.5 ? muted ? rollWord(goodArticle, mutedWord, wordStartingLetters, plural ? singleWord.plural : singleWord.word) : rollArticle(articles, goodArticle, mutedWord, plural ? singleWord.plural : singleWord.word) : rollArticle(articles, goodArticle, mutedWord);
-        }
-
-        function rollArticle(articles, goodArticle, displayedWord) {
-            displayed.innerHTML = "(?) " + displayedWord;
-            answers.empty();
-            for (let singleArticle of articles) {
-                let el = document.createElement("div");
-                el.innerHTML = singleArticle;
-                el.className = "item";
-                answers.appendChild(el);
-                el.addEventListener("click", () => {
-                    score += singleArticle === goodArticle ? 1 : -2;
-                    displaySuccess(singleArticle === goodArticle);
-                    if (score <= 0) score = 0;
-                    scoreDom.innerHTML = score;
-                    startGame();
-                });
-            }
-        }
-
-        function rollWord(goodArticle, mutedWord, letters, originalWord) {
-            let displayedWordsList = [mutedWord];
-            let firstLettersMutedWord = mutedWord.substr(0, 3).toLowerCase() === "c'h" ? "c'h" : mutedWord.charAt(0);
-            let rootWord = firstLettersMutedWord === "c'h" ? mutedWord.substr(3) : mutedWord.substr(1);
-            let firstLetters = letters === "gw" ? "gw" : letters.charAt(0);
-
-            for (singleTrap of mutations.trapSoft[firstLetters]) {
-                if (firstLettersMutedWord !== singleTrap) displayedWordsList.push(singleTrap + rootWord);
-            }
-            displayedWordsList.shuffle();
-
-            displayed.innerHTML = originalWord + ", " + goodArticle + " ? ";
-            answers.empty();
-            for (let singleWord of displayedWordsList) {
-                let el = document.createElement("div");
-                el.innerHTML = singleWord;
-                el.className = "item";
-                answers.appendChild(el);
-                el.addEventListener("click", () => {
-                    score += singleWord === mutedWord ? 1 : -2;
-                    displaySuccess(singleWord === mutedWord);
-                    if (score <= 0) score = 0;
-                    scoreDom.innerHTML = score;
-                    startGame();
-                })
-            }
-        }
-
-        function display(goodArticle, wordString) {
-            let word = document.createElement("div");
-            word.innerHTML = goodArticle + " " + wordString;
-            //board.appendChild(word);
-        }
-
-        function getArticle(wordString, articles) {
-            const wordStartingLetter = wordString.charAt(0);
-            let definite = articles[0].charAt(0) === "a" ? true : false;
-
-            if (wordStartingLetter === "l") return definite ? "al" : "ul";
-            if (["n", "d", "t", "h", "a", "e", "i", "o", "u"].includes(wordStartingLetter)) return definite ? "an" : "un";
-            return definite ? "ar" : "ur";
-        }
-
-        function getMutedWord(singleWord, plural) {
-            let wordString = plural ? singleWord.plural : singleWord.word;
-
-            if (!singleWord.male && plural && wordString.charAt(0) === "k") return "c'h" + wordString.substr(1);
-            if (!singleWord.male && plural) return wordString;
-            if (!singleWord.male) return getSoftenWord(wordString);
-            if (singleWord.pluralMale && singleWord.person && plural) return getSoftenWord(wordString);
-            if (singleWord.male && wordString.charAt(0) === "k") return "c'h" + wordString.substr(1);
-            return wordString;
-        }
-
-        function getSoftenWord(wordString) {
-            if (wordString.substr(0, 2).toLowerCase() === "gw") return "w" + wordString.substr(2);
-            return mutations.adoucissante[wordString.charAt(0)] ?
-                mutations.adoucissante[wordString.charAt(0)] + wordString.substr(1)
-                : wordString;
-        }
-
-        function startTimer(duration, display) {
-            var timer = duration, minutes, seconds;
-            var refreshIntervalId = setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
-
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-
-                display.textContent = minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    if (confirm("Kont en holl : " + score + ". Adkrogiñ ? Recommencer ?")) {
-                        timer = duration;
-                        score = 0;
-                    } else {
-                        clearInterval(refreshIntervalId);
-                    }
-                    
-                }
-            }, 1000);
-        }
-
-        function displaySuccess(successItem) {
-            success.empty();
-            success.classList.replace("hidden", "shown");
-            let el = document.createElement("div");
-            el.className = successItem ? "success-confirm" : "success-fail";
-            el.innerHTML = successItem ? "Mat eo" : "C'hwitet eo";
-            success.appendChild(el);
-        }
-
-        window.onload = function () {
-            startTimer(120, timerDom);
-        };
-
-
-
-
-
-
-    </script>
+    <script type="text/javascript" src="mutations.js"></script>
 
 </body>
 
