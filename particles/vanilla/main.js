@@ -1,10 +1,10 @@
 "use strict";
-const number = 200;
-const speed = 4;
+let number = 200;
+const speed = 8;
 const linkWidth = 0.5;
-const linkDistance = 100;
+const linkDistance = 120;
 const size = 2;
-var repulseDistance = 80;
+var repulseDistance = 100;
 const linkDistance2 = (0.7 * linkDistance) ** 2;
 const repulseDistance2 = repulseDistance ** 2;
 Math.TAU = Math.PI * 2;
@@ -17,9 +17,9 @@ var W,H;
 const bounce = true;
 
 const mouse = { x: 0, y: 0}
-const particlesList = [];
+let particlesList = [];
 const links = [[],[],[],[]];
-const linkBatchAlphas = [0.2, 0.4, 0.7, 0.9];
+const linkBatchAlphas = [0.1, 0.3, 0.7, 0.9];
 const linkBatches = links.length;
 const linkPool = [];
 let quadTree;
@@ -30,6 +30,11 @@ canvas.style.width = "100%";
 W = canvas.width = canvas.offsetX;
 H = canvas.height = canvas.offsetY;
 
+/*controls*/
+const addControl = document.getElementById("add-particle")
+const removeControl = document.getElementById("remove-particle")
+addControl.addEventListener("click", () => editNumber(20));
+removeControl.addEventListener("click", () => editNumber(number > 20 ? -20 : -number));
 
 canvas.addEventListener('mousemove', e => {
     mouse.x = e.offsetX;
@@ -45,12 +50,22 @@ window.addEventListener('resize', setCanvasSize);
 setTimeout(start, 42);
 
 function start(){ 
-    quadTree = new QuadTree();
-    for (let i = 0; i < number; i++) {
-      particlesList.push(new Particle(canvas, size));
-    }
+    initParticle();
     setCanvasSize();
     animate();
+}
+
+function editNumber(n) {
+  number = number + n;
+  particlesList = [];
+  initParticle();
+}
+
+function initParticle() {
+  quadTree = new QuadTree();
+  for (let i = 0; i < number; i++) {
+      particlesList.push(new Particle(canvas, size));
+  }
 }
 
 var times = [];
@@ -79,15 +94,15 @@ function updateParticles() {
 }
 function updateLinks() {
 
-    var i,j, link;
+    var i, link;
     for(const p1 of particlesList) {
         p1.explored = true;
         const count = quadTree.query(p1, 0, candidates);
-        for (j = 0; j < count; j++) {
-            const p2 = candidates[j];
+        for (i = 0; i < count; i++) {
+            const p2 = candidates[i];
             if (!p2.explored) {
                 link = linkPool.length ? linkPool.pop() : new Link();
-                link.init(p1, candidates[j]);
+                link.init(p1, candidates[i]);
                 links[link.batchId].push(link);
             }
         }
@@ -97,6 +112,7 @@ function updateLinks() {
     ctx.strokeStyle = linkRGB;
     for(const l of links) {
         ctx.globalAlpha = linkBatchAlphas[alphaIdx++]; 
+        
         ctx.beginPath();
         while(l.length) { linkPool.push(l.pop().addPath(ctx)) }
         ctx.stroke();
